@@ -1,0 +1,12 @@
+{
+  "aps": {
+    "content-available": 1,
+    "alert": {
+      "title": "Hello",
+      "body": "This has a custom sound!"
+    },
+    "sound": "alert_sound.caf",
+    "badge": 1
+  },
+  "customKey": "yourDataHere"
+}
