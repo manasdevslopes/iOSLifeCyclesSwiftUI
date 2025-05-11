@@ -1,12 +1,19 @@
 {
+  "Simulator Target Bundle": "com.yourappbundle.development",
   "aps": {
     "content-available": 1,
     "alert": {
-      "title": "Hello",
-      "body": "This has a custom sound!"
+      "title-loc-key": "NOTIF_TITLE_SESSION_ENDED_USER",
+      "title-loc-args": ["John"],
+      "loc-key": "NOTIF_BODY_SESSION_ENDED_USER",
+      "loc-args": ["EV Station 4"]
     },
     "sound": "alert_sound.caf",
     "badge": 1
   },
-  "customKey": "yourDataHere"
+  "customKey": "yourDataHere",
+  "data": {
+    "status": "FINISHED",
+    "body_loc_key": "LIVE_SESSION"
+  }
 }

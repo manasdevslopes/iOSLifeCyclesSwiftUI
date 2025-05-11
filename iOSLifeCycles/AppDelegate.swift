@@ -34,6 +34,9 @@ class AppDelegate: NSObject, UIApplicationDelegate {
     // Handle notifications if the app is launched from terminated state
     if let remoteNotification = launchOptions?[.remoteNotification] as? [AnyHashable : Any] {
       print("📢 Received remote notification in didFinishLaunchingWithOptions: \(remoteNotification)")
+      DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+        NotificationHandler.shared.handleForegroundNotification(userInfo: remoteNotification)
+      }
     }
     
     // Use UNUserNotificationCenter to Remove Delivered Notifications
@@ -93,7 +96,9 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
     print("📬 Notification received in foreground:")
     print("🔹 Title: \(notification.request.content.title)")
     print("🔹 Body: \(notification.request.content.body)")
-    
+    let userInfo = notification.request.content.userInfo
+    NotificationHandler.shared.handleForegroundNotification(userInfo: userInfo)
+    // Wnen no banner to be shown in all App state then make this completionHandler([]) as empty Array. So all the time Noti will appear only in notification center and in foreground state, it will get only payloads of notif, the UI won;t be shown.
     completionHandler([.banner, .sound, .badge, .list])
     
     /*
@@ -112,7 +117,10 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
     let content = response.notification.request.content
     print("🔹 Title: \(content.title)")
     print("🔹 Body: \(content.body)")
-    
+    let userInfo = content.userInfo
+    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+      NotificationHandler.shared.handleTappedNotification(userInfo: userInfo)
+    }
     completionHandler()
   }
   
@@ -125,7 +133,8 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
     
     // Perform background data sync or processing here
     // ...
-    
+    let userInfo = userInfo
+    NotificationHandler.shared.handleForegroundNotification(userInfo: userInfo)
     completionHandler(.newData) // or .noData or .failed
   }
   /*
@@ -166,3 +175,39 @@ extension AppDelegate {
     return true
   }
 }
+
+
+// MARK: - PushNotificationPayload.apns file example
+/*
+ {
+ "aps": {
+ "content-available": 1,
+ "alert": {
+ "title": "Hello",
+ "body": "This has a custom sound!"
+ },
+ "sound": "alert_sound.caf",
+ "badge": 1
+ },
+ "customKey": "yourDataHere"
+ }
+ 
+ Note -
+ ✅ If we use title and body inside alert then it will take those string to show title and body of the push notification.
+ ✅ If we use only body and don't use title / title-loc-key then it will show App display name from CFBundleDisplayName in Info.plist as title and prescribed body.
+ ✅ If we want those title's and body's to be translated then use this keys with the values of localised.xcstring keys. Check below keys for to write instead of title and body.
+    Localized Title - "title-loc-key"
+    Title Arguments - "title-loc-args"
+    Localized Body - "loc-key"
+    Body Arguments - "loc-args"
+ ✅ For examples
+    "alert": {
+       "title-loc-key": "NOTIF_TITLE_SESSION_ENDED_USER",
+       "title-loc-args": ["John"],
+       "loc-key": "NOTIF_BODY_SESSION_ENDED_USER",
+       "loc-args": ["EV Station 4"]
+    }
+ ✅ Localizable.strings
+    "NOTIF_TITLE_SESSION_ENDED_USER" = "Session Ended for %@";
+    "NOTIF_BODY_SESSION_ENDED_USER" = "Your charging session at %@ has ended. Please disconnect.";
+ */
