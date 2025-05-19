@@ -7,7 +7,7 @@
 // Copyright © 2025 Blacenova. All rights reserved.
 // ------------------------------------------------------------------------
 //
-    
+// import FirebaseMessaging // If u want to send fcm token everytime to BE.
 import UserNotifications
 import UIKit
 
@@ -33,6 +33,7 @@ class AppDelegate: NSObject, UIApplicationDelegate {
     
     // Handle notifications if the app is launched from terminated state
     if let remoteNotification = launchOptions?[.remoteNotification] as? [AnyHashable : Any] {
+      UserDefaults.standard.removeObject(forKey: "isBlockingFee")
       print("📢 Received remote notification in didFinishLaunchingWithOptions: \(remoteNotification)")
       DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
         NotificationHandler.shared.handleForegroundNotification(userInfo: remoteNotification)
@@ -42,6 +43,7 @@ class AppDelegate: NSObject, UIApplicationDelegate {
     // Use UNUserNotificationCenter to Remove Delivered Notifications
     UNUserNotificationCenter.current().removeAllDeliveredNotifications()
     
+    // Messaging.messaging().delegate = self
     return true
   }
   
@@ -70,6 +72,7 @@ class AppDelegate: NSObject, UIApplicationDelegate {
   */
   
   func applicationWillTerminate(_ application: UIApplication) {
+    UserDefaults.standard.removeObject(forKey: "isBlockingFee")
     print("6. App is about to terminate: applicationWillTerminate")
   }
 }
@@ -100,6 +103,11 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
     NotificationHandler.shared.handleForegroundNotification(userInfo: userInfo)
     // Wnen no banner to be shown in all App state then make this completionHandler([]) as empty Array. So all the time Noti will appear only in notification center and in foreground state, it will get only payloads of notif, the UI won;t be shown.
     completionHandler([.banner, .sound, .badge, .list])
+    if let bodyLocKey = userInfo["body_loc_key"] as? String, bodyLocKey == "BLOCKING_FEE" {
+      completionHandler([.banner])
+    } else if let bodyLocKey = userInfo["body_loc_key"] as? String, bodyLocKey == "LIVE_SESSION" {
+      completionHandler([])
+    }
     
     /*
      🧠 Common Combinations
@@ -176,6 +184,13 @@ extension AppDelegate {
   }
 }
 
+//extension AppDelegate: MessagingDelegate {
+//  func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String?) {
+//    if let token = fcmToken {
+//      GeneralViewModel.shared.firebaseToken = token
+//    }
+//  }
+//}
 
 // MARK: - PushNotificationPayload.apns file example
 /*

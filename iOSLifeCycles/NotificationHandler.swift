@@ -15,6 +15,7 @@ extension Notification.Name {
   static let remoteCharging = Notification.Name("remoteCharging")
   static let notificationTapped = Notification.Name("notificationTapped")
   static let blockingFeeReceived = Notification.Name("blockingFeeReceived")
+  static let blockingFeeTapped = Notification.Name("blockingFeeTapped")
 }
 
 class NotificationHandler {
@@ -48,7 +49,10 @@ extension NotificationHandler {
     } else if isBlockingFee(userInfo: userInfo) {
       // Set the flag and post the notification
       hasProcessedNotification = true
-      NotificationCenter.default.post(name: .blockingFeeReceived, object: nil, userInfo: userInfo)
+      UserDefaults.standard.set(userInfo, forKey: "isBlockingFee")
+      DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+        NotificationCenter.default.post(name: .blockingFeeReceived, object: nil, userInfo: userInfo)
+      }
     }
   }
 }
@@ -62,7 +66,10 @@ extension NotificationHandler {
         NotificationCenter.default.post(name: .notificationTapped, object: nil, userInfo: [:])
       }
     } else if isBlockingFee(userInfo: userInfo) {
-      NotificationCenter.default.post(name: .blockingFeeReceived, object: nil, userInfo: userInfo)
+      UserDefaults.standard.set(userInfo, forKey: "isBlockingFee")
+      DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+        NotificationCenter.default.post(name: .blockingFeeTapped, object: nil, userInfo: userInfo)
+      }
     }
   }
 }

@@ -5,6 +5,8 @@
     "alert": {
       "title-loc-key": "NOTIF_TITLE_SESSION_ENDED_USER",
       "title-loc-args": ["John"],
+      "subtitle-loc-key": "NOTIFICATION_SESSION_ENDED",
+      "subtitle-loc-args": ["5 minutes ago"],
       "loc-key": "NOTIF_BODY_SESSION_ENDED_USER",
       "loc-args": ["EV Station 4"]
     },
