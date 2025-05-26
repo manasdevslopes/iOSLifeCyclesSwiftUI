@@ -10,12 +10,10 @@
       "loc-key": "NOTIF_BODY_SESSION_ENDED_USER",
       "loc-args": ["EV Station 4"]
     },
-    "sound": "alert_sound.caf",
+    "sound": "alert_sound.caf", // "default"
     "badge": 1
   },
   "customKey": "yourDataHere",
-  "data": {
-    "status": "FINISHED",
-    "body_loc_key": "LIVE_SESSION"
-  }
+  "status": "FINISHED",
+  "body_loc_key": "LIVE_SESSION"
 }
