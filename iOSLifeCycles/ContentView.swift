@@ -12,6 +12,8 @@
 import SwiftUI
 
 struct ContentView: View {
+  @State private var showNotificationAlert: Bool = false
+  
   var body: some View {
     VStack(spacing: 20) {
       Text("Lifecycle Demo")
@@ -19,6 +21,31 @@ struct ContentView: View {
         .padding()
       Text("Check the Xcode console for lifecycle logs.")
         .font(.subheadline)
+      
+      Button {
+//      let denied = await storePushToken()
+//      if denied {
+          // Notifications denied - show alert and do not continue
+//        showNotificationAlert = true
+//        return
+//      }
+        
+        // Notification allowed - proceed
+        // Else part call some other API or do some other actions here.
+      } label: {
+        Text("Call FCM Token")
+      }
+
+    }
+    .alert("Notifications Disabled", isPresented: $showNotificationAlert) {
+      Button("Cancel", role: .cancel) {}
+      Button("Open Settings") {
+        if let url = URL(string: UIApplication.openSettingsURLString) {
+          UIApplication.shared.open(url)
+        }
+      }
+    } message: {
+      Text("To receive notifications, please enable them in Settings > Privacy > Notifications.")
     }
     .onAppear {
       print("ContentView: onAppear")

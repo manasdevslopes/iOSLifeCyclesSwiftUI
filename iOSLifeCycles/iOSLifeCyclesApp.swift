@@ -28,12 +28,12 @@ struct iOSLifeCyclesApp: App {
           print("1. Scene is now active: user can interact with the app")
           // Use UNUserNotificationCenter to Remove Delivered Notifications
           UNUserNotificationCenter.current().removeAllDeliveredNotifications()
-          // Task { await storePushToken() }
+          // Task { _ = await storePushToken() }
         case .inactive:
           print("2. Scene is inactive: temporary interruption or transitioning")
         case .background:
           print("3. Scene is in background: app no longer visible to the user")
-          // Task { await storePushToken() }
+          // Task { _ = await storePushToken() }
         @unknown default:
           print("⚠️ Scene is in an unknown phase: handle with care")
       }

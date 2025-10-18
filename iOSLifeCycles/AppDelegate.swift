@@ -7,6 +7,7 @@
 // Copyright © 2025 Blacenova. All rights reserved.
 // ------------------------------------------------------------------------
 //
+// import FirebaseCore
 // import FirebaseMessaging // If u want to send fcm token everytime to BE.
 import UserNotifications
 import UIKit
@@ -24,12 +25,18 @@ class AppDelegate: NSObject, UIApplicationDelegate {
       }
       if granted {
         print("🔔 Notification permission granted: \(granted)")
-        // Get token from Firebase and do something witht the token.
+//      Messaging.messaging().token { token, _ in
+//        Get token from Firebase and do something witht the token like this below.
+//        if let token { GeneralViewModel.shared.firebaseToken = token }
+//      }
       }
     }
     
-    // Register with APNs
-    application.registerForRemoteNotifications()
+    if EnvironmentConf.firebaseFile != nil {
+      // Register with APNs
+      application.registerForRemoteNotifications()
+      // FirebaseApp.configure()
+    }
     
     // Handle notifications if the app is launched from terminated state
     if let remoteNotification = launchOptions?[.remoteNotification] as? [AnyHashable : Any] {
@@ -186,9 +193,8 @@ extension AppDelegate {
 
 //extension AppDelegate: MessagingDelegate {
 //  func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String?) {
-//    if let token = fcmToken {
+//    guard let token = fcmToken else { return }
 //      GeneralViewModel.shared.firebaseToken = token
-//    }
 //  }
 //}
 
