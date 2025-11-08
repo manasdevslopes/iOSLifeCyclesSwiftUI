@@ -34,7 +34,10 @@ func storePushToken() async -> Bool {
         dump(token, name: "fcm_token")
         
         // Send token to backend
-        await UserRepository().storePushNotificationToken(registrationId: token, isActive: true)
+        Task.detached {
+            await UserRepository().storePushNotificationToken(registrationId: token, isActive: true)
+        }
+ 
         return false // Notifications are enabled
       } catch {
         print("Error fetching FCM Token: \(error)")
