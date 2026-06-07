@@ -94,6 +94,10 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
     let tokenParts = deviceToken.map { String(format: "%02.2hhx", $0) }
     let token = tokenParts.joined()
     print("✅ Successfully registered for notifications. Device Token: \(token)")
+    
+    // When doing Silent Push Notification then we need to add a key - FirebaseAppDelegateProxyEnabled Key to false in info.plist. By doing this Firebase can't get fcm_token. So directly pass that token from here with the below code.
+    // Messagin.messaging().apnsToken = deviceToken
+    // Then use this method - didReceiveRemoteNotification to handle silent notifications.
   }
   
   // 3. If Failed to register
@@ -146,12 +150,66 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
     print("📦 Received silent push or remote notification")
     print("Payload: \(userInfo)")
     
-    // Perform background data sync or processing here
-    // ...
-    let userInfo = userInfo
-    NotificationHandler.shared.handleForegroundNotification(userInfo: userInfo)
-    completionHandler(.newData) // or .noData or .failed
+    if let jsonData = try? JSONSerialization.data(withJSONObject: userInfo, options: .prettyPrinted), let jsonString = String(data: jsonData, encoding: .utf8) {
+      print("didReceiveRemoteNotification: \(jsonString)")
+    }
+    
+    if let aps = userInfo["aps"] as? [String: Any], let contentAvailable = aps["content-available"] as? Int, contentAvailable == 1 {
+      NotificationHandler.shared.handleForegroundNotification(userInfo: userInfo)
+     
+      completionHandler(.newData)
+    } else {
+      completionHandler(.noData) // or .noData or .failed
+    }
   }
+  /*
+   When doing Silent Push Notification then we need to add a key - FirebaseAppDelegateProxyEnabled Key to false in info.plist. By doing this Firebase can't get fcm_token. So directly pass that token from here with the below code.
+   Messagin.messaging().apnsToken = deviceToken
+   Then use this method - didReceiveRemoteNotification to handle silent notifications.
+   
+   To test the Silent / Push Notification, can use OAuth API by generating OAuth token from here - OAuth 2.0 Playground
+   Link - https://developers.google.com/oauthplayground/
+   Then here in Step 1 - Select Authorize API from the list -> "Firebase Cloud Messaging API v1" -> Select "https://www.googleapis.com/auth/firebase.messaging" -> Click Authorize API button
+   Then it will ask for login with gmail account. Then Login with that. Then select Continue.
+   
+   Then in Step 2 - Exchange authorization code for tokens -> Click on Exchange authorization code for tokens button.
+   
+   Then copy the access Token. It might expire in 1 hour, then regenerate the token, if required.
+   
+   Full POSTMAN cURL or API
+   POST -> https://fcm.googleapis.com/v1/projects/project-name-from-firebase/messages:send
+   Headers -
+   content-type : application/json
+   authorization : Bearer <token from OAuth 2.0 Playground>
+   
+   Body -
+   {
+     "message": {
+        "token": "fcm_token",
+        "data": {
+          "end_timestamp": "{{$timestamp}}",
+          "start_timestamp": "1779803248",
+          "is_maintenance" : "true"
+        },
+        "android": {
+           "priority": "high"
+        },
+        "apns": {
+          "payload": {
+             "aps": {
+               "content-available": 1
+             }
+          },
+          "headers": {
+            "apns-priority": "10",
+            "apns-push-type": "background"
+          }
+        }
+     }
+   }
+   
+   */
+  
   /*
    ⚠️ Important Notes
    
